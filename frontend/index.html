@@ -14,8 +14,8 @@
       <button id="btn-chicken" class="flex items-center gap-2 px-4 py-2 bg-yellow-100 hover:bg-yellow-200 rounded-xl border border-yellow-300 font-semibold text-lg">
         <img src="https://play-lh.googleusercontent.com/N0j9fRLpcmieEomXxuwv8q-Y5KyRA_0Kwlji02JDKuKBH2oGigPCGPpPX1BRYfjoc7w" class="w-10 h-10"> Checken Road
       </button>
-      <button id="btn-avia" class="flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded-xl border border-blue-300 font-semibold text-lg">
-        <img src="https://aviator-game.it/wp-content/uploads/aviator-online-game.webp" class="w-10 h-10"> AviaMaster
+      <button id="btn-aviator" class="flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded-xl border border-blue-300 font-semibold text-lg">
+        <img src="https://aviator-game.it/wp-content/uploads/aviator-online-game.webp" class="w-10 h-10"> Aviator
       </button>
     </div>
     <div id="game-select" class="mb-4 text-center text-lg font-semibold text-gray-700"></div>
@@ -27,12 +27,16 @@
       class="w-full py-3 bg-violet-500 hover:bg-violet-600 text-white font-bold rounded-xl text-lg transition mb-3 mt-4 flex items-center justify-center gap-2">
       Получить сигнал
     </button>
+    <div class="text-xs text-gray-500 mb-2 text-center">
+      ⚠️ Бот может выдать неправильный сигнал.<br>
+      Загружайте актуальный скриншот с игры!
+    </div>
     <div id="signal" class="mt-3"></div>
   </div>
   <script>
     let selectedGame = null;
     const btnChicken = document.getElementById('btn-chicken');
-    const btnAvia = document.getElementById('btn-avia');
+    const btnAviator = document.getElementById('btn-aviator');
     const fileInput = document.getElementById('fileInput');
     const getSignalBtn = document.getElementById('getSignalBtn');
     const signalDiv = document.getElementById('signal');
@@ -52,7 +56,7 @@
     }
 
     btnChicken.onclick = () => selectGame("Checken Road");
-    btnAvia.onclick = () => selectGame("AviaMaster");
+    btnAviator.onclick = () => selectGame("Aviator");
 
     fileInput.onchange = (e) => {
       const file = e.target.files[0];
@@ -82,7 +86,7 @@
         return;
       }
 
-      signalDiv.innerHTML = `<span class='text-gray-500 text-center block'>Проверяем скриншот...</span>`;
+      signalDiv.innerHTML = `<span class='text-gray-500 text-center block'>Генерируем сигнал...</span>`;
 
       const formData = new FormData();
       formData.append("file", fileObj, fileObj.name);
@@ -110,6 +114,11 @@
   </script>
   <style>
     @keyframes fadein { from { opacity: 0;} to {opacity: 1;}}
+    .animate-fadein { animation: fadein 0.7s;}
+  </style>
+</body>
+</html>
+
     .animate-fadein { animation: fadein 0.7s;}
   </style>
 </body>
