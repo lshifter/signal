@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Сигналы игр | Telegram Mini App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-100 via-violet-100 to-pink-100 min-h-screen flex flex-col justify-center items-center">
+  <div class="w-full max-w-md bg-white/95 rounded-2xl shadow-xl p-6 mt-10">
+    <h1 class="text-2xl font-bold text-gray-900 mb-4 text-center">Сигналы по играм</h1>
+    <div class="flex flex-col gap-4 mb-5">
+      <button id="btn-chicken" class="flex items-center gap-2 px-4 py-2 bg-yellow-100 hover:bg-yellow-200 rounded-xl border border-yellow-300 font-semibold text-lg">
+        <img src="https://play-lh.googleusercontent.com/N0j9fRLpcmieEomXxuwv8q-Y5KyRA_0Kwlji02JDKuKBH2oGigPCGPpPX1BRYfjoc7w" class="w-10 h-10"> Checken Road
+      </button>
+      <button id="btn-avia" class="flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded-xl border border-blue-300 font-semibold text-lg">
+        <img src="https://aviator-game.it/wp-content/uploads/aviator-online-game.webp" class="w-10 h-10"> AviaMaster
+      </button>
+    </div>
+    <div id="game-select" class="mb-4 text-center text-lg font-semibold text-gray-700"></div>
+    <input type="file" accept="image/*" id="fileInput"
+           class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full
+                  file:border-0 file:text-sm file:font-semibold file:bg-violet-100 file:text-violet-800 hover:file:bg-violet-200"/>
+    <img id="preview" class="mt-4 rounded-xl shadow-md hidden" style="max-width: 210px;"/>
+    <button id="getSignalBtn"
+      class="w-full py-3 bg-violet-500 hover:bg-violet-600 text-white font-bold rounded-xl text-lg transition mb-3 mt-4 flex items-center justify-center gap-2">
+      Получить сигнал
+    </button>
+    <div id="signal" class="mt-3"></div>
+  </div>
+  <script>
+    let selectedGame = null;
+    const btnChicken = document.getElementById('btn-chicken');
+    const btnAvia = document.getElementById('btn-avia');
+    const fileInput = document.getElementById('fileInput');
+    const getSignalBtn = document.getElementById('getSignalBtn');
+    const signalDiv = document.getElementById('signal');
+    const preview = document.getElementById('preview');
+    const gameSelect = document.getElementById('game-select');
+    let imageLoaded = false;
+    let fileObj = null;
+
+    function selectGame(name) {
+      selectedGame = name;
+      gameSelect.textContent = `Выбрана игра: ${name}`;
+      signalDiv.innerHTML = "";
+      preview.style.display = "none";
+      fileInput.value = "";
+      imageLoaded = false;
+      fileObj = null;
+    }
+
+    btnChicken.onclick = () => selectGame("Checken Road");
+    btnAvia.onclick = () => selectGame("AviaMaster");
+
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) {
+        preview.style.display = "none";
+        imageLoaded = false;
+        fileObj = null;
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        preview.src = event.target.result;
+        preview.style.display = "block";
+        imageLoaded = true;
+        fileObj = file;
+      }
+      reader.readAsDataURL(file);
+    };
+
+    getSignalBtn.onclick = async () => {
+      if (!selectedGame) {
+        signalDiv.innerHTML = "<span class='text-red-500 font-semibold text-center block'>Сначала выберите игру!</span>";
+        return;
+      }
+      if (!imageLoaded || !fileObj) {
+        signalDiv.innerHTML = "<span class='text-red-500 font-semibold text-center block'>Пожалуйста, загрузите скриншот игры!</span>";
+        return;
+      }
+
+      signalDiv.innerHTML = `<span class='text-gray-500 text-center block'>Проверяем скриншот...</span>`;
+
+      const formData = new FormData();
+      formData.append("file", fileObj, fileObj.name);
+      formData.append("game", selectedGame);
+
+      try {
+        const res = await fetch("https://your-backend-url.com/analyze/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (data.error) {
+          signalDiv.innerHTML = `<span class='text-red-500 font-semibold text-center block'>${data.error}</span>`;
+          return;
+        }
+        signalDiv.innerHTML = `
+          <div class="rounded-xl bg-violet-50/95 p-4 shadow text-gray-800 animate-fadein text-lg mb-2">
+            ${data.signal}
+          </div>
+        `;
+      } catch (e) {
+        signalDiv.innerHTML = `<span class='text-red-500 font-semibold text-center block'>Ошибка сервера: ${e.message}</span>`;
+      }
+    };
+  </script>
+  <style>
+    @keyframes fadein { from { opacity: 0;} to {opacity: 1;}}
+    .animate-fadein { animation: fadein 0.7s;}
+  </style>
+</body>
+</html>
